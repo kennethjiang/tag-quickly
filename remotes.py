@@ -201,12 +201,11 @@ class Tags():
         return self.tags.get('sessions', {}).get(session_id, [])
 
     def add_tag_to_session(self, tag, targets):
-        import ipdb; ipdb.set_trace()
         self.tags['targets'] = self.tags.get('targets', {})
         for target in targets:
             file_path = target
             tags = self.tags.get('targets').get(file_path, [])
-            new_tags = set(tags).union(set([tag]))
+            new_tags = set(tags) ^ set([tag])
             self.tags['targets'][file_path] = list(new_tags)
         with open(self.file_path, 'w') as outfile:
                 json.dump(self.tags, outfile, sort_keys=True, indent=4)
