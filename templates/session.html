@@ -37,8 +37,7 @@
 							<li class="thumbnail" id="{{session['name']}}/{{ img['name'] }}">
 								<img src="/session_image/{{session['name']}}/{{ img['name'] }}" class="img-responsive">
 								<div class="caption">
-									<p class="small desc">
-										Throttle:</p>
+									<p class="small desc" />
 								</div>
 							</li>
 						{% end %}
@@ -180,7 +179,8 @@ var tagToggled = function(tagName) {
         data: JSON.stringify({targets}),
 	    contentType: "application/json; charset=utf-8",
 	    dataType: "json",
-    });
+        complete: loadTags,
+    })
 }
 
 var loadTags = function() {
@@ -191,7 +191,7 @@ var loadTags = function() {
         success: function(result) {
             all_tags = result.all_tags;
             $('li.thumbnail.ui-selectee').each( function(_, el) {
-                var tags = result.targets[el.id] || [];
+                var tags = result.targets[el.id] || ['None'];
                 $(el).find('.caption p').text(tags.join(','));
             })
         }
