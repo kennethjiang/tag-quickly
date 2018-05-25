@@ -34,7 +34,7 @@
 					<ol id="selectable">
 						<p class="text-muted"><em>Click and drag to select images, command + click to select multiple single images.</em></p>
 						{% for img in session['imgs'] %}					
-							<li class="thumbnail" id="{{ img['name'] }}">
+							<li class="thumbnail" id="{{session['name']}}/{{ img['name'] }}">
 								<img src="/session_image/{{session['name']}}/{{ img['name'] }}" class="img-responsive">
 								<div class="caption">
 									<p class="small desc">
@@ -149,16 +149,33 @@
 				});
 			});
 			
-		} );
-var tagToggled = function(el) {
-    var sessionURL = "/api/sessions/"
+            $(document).keydown(function(e) {
+                if (!e.ctrlKey) {
+                    return;
+                }
 
-    var tagName = $(el).data('tagname');
-    var dirName = $(el).data('dirname');
+                if (e.which >= 49 && e.which < 59) {
+                    var i = e.which - 49;
+                    
+                    if (i >= all_tags.length) {
+                        return;
+                    }
+
+                    tagToggled(all_tags[i]);
+
+                    e.preventDefault(); // prevent the default action (scroll / move caret)
+                }
+            });
+            loadTags();
+		} );
+
+var all_tags = [];
+
+var tagToggled = function(tagName) {
     var targets = $('.ui-selected').toArray().map(function(el) {return el.id})
     //var verb = $(el).hasClass('active') ? 'DELETE' : 'PUT';  // class has not changed when onclick is called. So having 'active' means 'it's about to become inactive
     $.ajax({
-        url: sessionURL + dirName + '/tags/' + tagName + '/',
+        url: '/api/tags/' + tagName + '/',
         type: 'PUT',
         data: JSON.stringify({targets}),
 	    contentType: "application/json; charset=utf-8",
@@ -166,6 +183,20 @@ var tagToggled = function(el) {
     });
 }
 
+var loadTags = function() {
+    $.ajax({
+        url: "/api/tags/",
+        type: 'GET',
+	    dataType: "json",
+        success: function(result) {
+            all_tags = result.all_tags;
+            $('li.thumbnail.ui-selectee').each( function(_, el) {
+                var tags = result.targets[el.id] || [];
+                $(el).find('.caption p').text(tags.join(','));
+            })
+        }
+    });
+}
 	</script>
 
 	</body>

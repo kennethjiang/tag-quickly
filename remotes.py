@@ -76,7 +76,8 @@ class DonkeyPilotApplication(tornado.web.Application):
 
             (r"/api/sessions/", SessionAPI),
 
-            (r"/api/sessions/?(?P<session_id>[^/]+)?/tags/?(?P<tag>[^/]+)?/", TagAPI),
+            (r"/api/tags/", TagGetAPI),
+            (r"/api/tags/?(?P<tag>[^/]+)?/", TagAPI),
 
             (r"/sessions/", SessionListView),
             (r"/sessions/?(?P<session_id>[^/]+)?/?(?P<page>[^/]+)?/download", SessionDownload),
@@ -323,11 +324,15 @@ class SessionAPI(tornado.web.RequestHandler):
         if self.get_query_argument('last', None, True):
             last_session.delete()
 
-class TagAPI(tornado.web.RequestHandler):
+class TagGetAPI(tornado.web.RequestHandler):
 
-    def put(self, session_id, tag):
+    def get(self):
+        self.write(json.dumps(Tags(self.application.sessions_path).tags))
+
+class TagAPI(tornado.web.RequestHandler):
+    def put(self, tag):
         targets = tornado.escape.json_decode(self.request.body)['targets']
-        Tags(self.application.sessions_path).add_tag_to_session(session_id, tag, targets)
+        Tags(self.application.sessions_path).add_tag_to_session(tag, targets)
 
     def delete(self, session_id, tag):
         Tags(self.application.sessions_path).delete_tag_from_session(session_id, tag)

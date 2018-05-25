@@ -2,3 +2,4 @@
 *.egg-info/
 .git.bfg-report
 .DS_Store
+__pycache__
