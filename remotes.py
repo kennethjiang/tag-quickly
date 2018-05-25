@@ -140,22 +140,31 @@ class SessionView(tornado.web.RequestHandler):
         imgs = [{'name':f.name} for f in os.scandir(path) if f.is_file() ]
         img_count = len(imgs)
 
-        perpage = 500
-        pages = math.ceil(img_count/perpage)
+        per_page = 500
+        max_page_num = 11
+        pages = math.ceil(img_count/per_page)
         if page is None:
             page = 1
         else:
             page = int(page)
-        end = page * perpage
-        start = end - perpage
+
+        skip_back_page = page - math.ceil(max_page_num/2)
+        skip_back_page = 1 if skip_back_page < 1 else skip_back_page
+        skip_ahead_page = skip_back_page + max_page_num + 1
+        skip_ahead_page = pages if skip_ahead_page > pages else skip_ahead_page
+
+        page_list = list(range(skip_back_page+1, skip_ahead_page))
+
+        pagination = {'cur_page': page, 'page_list': page_list, 'skip_back_page': skip_back_page, 'skip_ahead_page': skip_ahead_page}
+
+        end = page * per_page
+        start = end - per_page
         end = min(end, img_count)
 
-
         sorted_imgs = sorted(imgs, key=itemgetter('name'))
-        page_list = [p+1 for p in range(pages)]
         session = {'name':session_id, 'imgs': sorted_imgs[start:end]}
         tags = Tags(self.application.sessions_path)
-        data = {'session': session, 'page_list': page_list, 'this_page':page, 'prev': prev_session_id, 'next': next_session_id, 'tags': tags.all_tags(), 'session_tags': tags.session_tags(session_id)}
+        data = {'session': session, 'pagination': pagination, 'prev': prev_session_id, 'next': next_session_id, 'tags': tags.all_tags(), 'session_tags': tags.session_tags(session_id)}
         self.render("templates/session.html", **data)
 
 
