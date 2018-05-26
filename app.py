@@ -24,25 +24,22 @@ from PIL import Image
 
 class TaggingApplication(tornado.web.Application):
 
-    def __init__(self, mydonkey_path='~/mydonkey/'):
+    def __init__(self, dataset_path):
         '''
         Create and publish variables needed on many of
         the web handlers.
         '''
 
-        print('Starting Donkey Server...')
-        if not os.path.exists(os.path.expanduser(mydonkey_path)):
-            raise ValueError('Could not find mydonkey folder. Please run "python scripts/setup.py"')
+        if not os.path.exists(os.path.expanduser(dataset_path)):
+            raise ValueError(dataset_path + " does not exist.")
 
-
-        self.vehicles = {}
 
         this_dir = os.path.dirname(os.path.realpath(__file__))
         self.static_file_path = os.path.join(this_dir, 'templates', 'static')
 
-        self.mydonkey_path = os.path.expanduser(mydonkey_path)
-        self.sessions_path = os.path.join(self.mydonkey_path, 'sessions')
-        self.models_path = os.path.join(self.mydonkey_path, 'models')
+        self.dataset_path = dataset_path
+        self.sessions_path = os.path.join(self.dataset_path, 'sessions')
+        self.models_path = os.path.join(self.dataset_path, 'models')
 
         handlers = [
 
@@ -75,23 +72,23 @@ class TaggingApplication(tornado.web.Application):
 class TagGetAPI(tornado.web.RequestHandler):
 
     def get(self):
-        self.write(json.dumps(Tags(self.application.sessions_path).tags))
+        self.write(json.dumps(Tags(self.application.dataset_path).tags))
 
 class TagAPI(tornado.web.RequestHandler):
     def put(self, tag):
         targets = tornado.escape.json_decode(self.request.body)['targets']
-        Tags(self.application.sessions_path).add_tag_to_session(tag, targets)
+        Tags(self.application.dataset_path).add_tag_to_session(tag, targets)
 
     def delete(self, session_id, tag):
-        Tags(self.application.sessions_path).delete_tag_from_session(session_id, tag)
+        Tags(self.application.dataset_path).delete_tag_from_session(session_id, tag)
 
 
 class SessionImageView(tornado.web.RequestHandler):
     def get(self, session_id, img_name):
         ''' Returns jpg images from a session folder '''
 
-        sessions_path = self.application.sessions_path
-        path = os.path.join(sessions_path, session_id, img_name)
+        dataset_path = self.application.dataset_path
+        path = os.path.join(dataset_path, session_id, img_name)
         f = Image.open(path)
         o = io.BytesIO()
         f.save(o, format="JPEG")
@@ -112,8 +109,8 @@ class SessionListView(tornado.web.RequestHandler):
         TODO: Move this list creation to the session handler.
         '''
 
-        session_dirs = [f for f in os.scandir(self.application.sessions_path) if f.is_dir() ]
-        data = {'session_dirs': session_dirs, 'tags': Tags(self.application.sessions_path)}
+        session_dirs = [f for f in os.scandir(self.application.dataset_path) if f.is_dir() ]
+        data = {'session_dirs': session_dirs, 'tags': Tags(self.application.dataset_path)}
         self.render("templates/session_list.html", **data)
 
 
@@ -126,17 +123,17 @@ class SessionView(tornado.web.RequestHandler):
         '''
         from operator import itemgetter
 
-        sessions_path = self.application.sessions_path
+        dataset_path = self.application.dataset_path
 
         prev_session_id = next_session_id = None
-        session_dirs = [f.name for f in os.scandir(self.application.sessions_path) if f.is_dir() ]
+        session_dirs = [f.name for f in os.scandir(self.application.dataset_path) if f.is_dir() ]
         cur_idx = session_dirs.index(session_id)
         if cur_idx > 0:
             prev_session_id = session_dirs[cur_idx - 1]
         if cur_idx < len(session_dirs) - 1:
             next_session_id = session_dirs[cur_idx + 1];
 
-        path = os.path.join(sessions_path, session_id)
+        path = os.path.join(dataset_path, session_id)
         imgs = [{'name':f.name} for f in os.scandir(path) if f.is_file() ]
         img_count = len(imgs)
 
@@ -163,7 +160,7 @@ class SessionView(tornado.web.RequestHandler):
 
         sorted_imgs = sorted(imgs, key=itemgetter('name'))
         session = {'name':session_id, 'imgs': sorted_imgs[start:end]}
-        tags = Tags(self.application.sessions_path)
+        tags = Tags(self.application.dataset_path)
         data = {'session': session, 'pagination': pagination, 'prev': prev_session_id, 'next': next_session_id, 'tags': tags.all_tags(), 'session_tags': tags.session_tags(session_id)}
         self.render("templates/session.html", **data)
 
@@ -177,8 +174,8 @@ class SessionView(tornado.web.RequestHandler):
         data = tornado.escape.json_decode(self.request.body)
 
         if data['action'] == 'delete_images':
-            sessions_path = self.application.sessions_path
-            path = os.path.join(sessions_path, session_id)
+            dataset_path = self.application.dataset_path
+            path = os.path.join(dataset_path, session_id)
 
             for i in data['imgs']:
                 os.remove(os.path.join(path, i))
@@ -186,9 +183,9 @@ class SessionView(tornado.web.RequestHandler):
 
 
 class Tags():
-    def __init__(self, sessions_path):
+    def __init__(self, dataset_path):
         try:
-            self.file_path = os.path.join(sessions_path, 'tags')
+            self.file_path = os.path.join(dataset_path, 'tags')
             with open(self.file_path) as f:
                 self.tags = json.load(f)
         except:
@@ -217,4 +214,4 @@ class Tags():
         with open(self.file_path, 'w') as outfile:
                 json.dump(self.tags, outfile, sort_keys=True, indent=4)
 
-TaggingApplication().start()
+TaggingApplication(sys.argv[1]).start()
