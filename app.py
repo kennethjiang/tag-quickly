@@ -8,6 +8,7 @@ import time
 from datetime import datetime
 import json
 import io
+import sys
 import os
 import copy
 import math
@@ -63,7 +64,7 @@ class TaggingApplication(tornado.web.Application):
 
     def start(self, port=8887):
         ''' Start the tornado webserver. '''
-        print(port)
+        print("Tag-quick started on port: {0}".format(port))
         self.port = int(port)
         self.listen(self.port)
         tornado.ioloop.IOLoop.instance().start()
