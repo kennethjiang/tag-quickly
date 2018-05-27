@@ -138,7 +138,7 @@ class SessionView(tornado.web.RequestHandler):
         imgs = [{'name':f.name} for f in os.scandir(path) if f.is_file() ]
         img_count = len(imgs)
 
-        per_page = 500
+        per_page = 504
         max_page_num = 11
         pages = math.ceil(img_count/per_page)
         if page is None:
