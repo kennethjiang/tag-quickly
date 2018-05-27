@@ -81,6 +81,10 @@
 				</nav>
 			</div>
             
+			<div class="col-md-5 img-controls text-right">
+				<input class="btn btn-default" type="button" value="Select All" id="select-all">
+			</div>
+
 	</footer>
 
 	<div class='meta' style="display:none">
@@ -100,43 +104,9 @@
 			});
 			
 			$('#select-all').on('click', function () {
-				if ($(this).is(":checked")) {
-					$('.thumbnail').addClass('ui-selected');
-				} else {
-					$('.thumbnail').removeClass('ui-selected');
-				}
-				
-				$( "#select-result" ).text(function( index ) {
-					return $('.ui-selected').length;
-				});
+			    $('.thumbnail').addClass('ui-selected');
 			})
 
-			$('#delete-all').click(function(){
-				var selected = []
-
-				// Build array of selected images
-				$(".ui-selected").each(function() {
-					selected.push(this.id);
-				});
-				
-				console.log(selected);
-
-				//Send post request to server.
-				data = JSON.stringify({ 'imgs': selected,
-																'session_id': $('#session_id').data('id'),
-																'action':'delete_images'});
-
-				console.log(data);
-				$.post('', data);
-				
-				//Remove deleted images from page
-				$(selected).each(function( index, value ) {
-					console.log(value);
-					$("[id='" + value + "']").remove();
-					$( "#selectable" ).selectable( "refresh" );
-				});
-			});
-			
             $(document).keydown(function(e) {
                 if (!e.ctrlKey) {
                     return;
