@@ -150,7 +150,7 @@ var tagToggled = function(tagName) {
         data: JSON.stringify({targets}),
 	    contentType: "application/json; charset=utf-8",
 	    dataType: "json",
-        complete: loadTags,
+        success: update_tags,
     })
 }
 
@@ -158,19 +158,21 @@ var tagToBadge = function(tag) {
     return '<span class="badge badge-' + all_tags.indexOf(tag) + '">' + tag + '</span>';
 }
 
+var update_tags = function(result) {
+    all_tags = result.all_tags;
+    $('#tag-list').html(all_tags.map(tagToBadge));
+    $('li.thumbnail.ui-selectee').each( function(_, el) {
+        var tags = result.targets[el.id] || [];
+        $(el).find('.caption').html(tags.map(tagToBadge));
+    })
+}
+
 var loadTags = function() {
     $.ajax({
         url: "/api/tags/",
         type: 'GET',
 	    dataType: "json",
-        success: function(result) {
-            all_tags = result.all_tags;
-            $('#tag-list').html(all_tags.map(tagToBadge));
-            $('li.thumbnail.ui-selectee').each( function(_, el) {
-                var tags = result.targets[el.id] || [];
-                $(el).find('.caption').html(tags.map(tagToBadge));
-            })
-        }
+        success: update_tags,
     });
 }
 

@@ -78,11 +78,9 @@ class TagGetAPI(tornado.web.RequestHandler):
 class TagAPI(tornado.web.RequestHandler):
     def put(self, tag):
         targets = tornado.escape.json_decode(self.request.body)['targets']
-        Tags(self.application.dataset_path).add_tag_to_session(tag, targets)
-
-    def delete(self, session_id, tag):
-        Tags(self.application.dataset_path).delete_tag_from_session(session_id, tag)
-
+        tags = Tags(self.application.dataset_path)
+        tags.update_tag(tag, targets)
+        self.write(json.dumps(tags.tags))
 
 class SessionImageView(tornado.web.RequestHandler):
     def get(self, session_id, img_name):
@@ -198,7 +196,7 @@ class Tags():
     def session_tags(self, session_id):
         return self.tags.get('sessions', {}).get(session_id, [])
 
-    def add_tag_to_session(self, tag, targets):
+    def update_tag(self, tag, targets):
         self.tags['targets'] = self.tags.get('targets', {})
         for target in targets:
             file_path = target
@@ -206,13 +204,7 @@ class Tags():
             new_tags = set(tags) ^ set([tag])
             self.tags['targets'][file_path] = list(new_tags)
         with open(self.file_path, 'w') as outfile:
-                json.dump(self.tags, outfile, sort_keys=True, indent=4)
+            json.dump(self.tags, outfile, sort_keys=True, indent=4)
 
-    def delete_tag_from_session(self, session_id, tag):
-        tags = set(self.tags.get('sessions', {}).get(session_id, []))
-        tags.discard(tag)
-        self.tags.get('sessions', {})[session_id] = list(tags)
-        with open(self.file_path, 'w') as outfile:
-                json.dump(self.tags, outfile, sort_keys=True, indent=4)
 
 TaggingApplication(sys.argv[1]).start()
