@@ -21,13 +21,7 @@
 				</div>
 			</div>
             <div class="row">
-                <div class="col-md-12">
-                    {% for tag in tags %}
-                    <button type="button" class="btn btn-xs tagging btn-info {{'active' if tag in session_tags else ''}}" data-dirname="{{session['name']}}" data-tagname="{{tag}}"  data-toggle="button" aria-pressed="false" autocomplete="off" onclick="tagToggled(this)">
-                            {{tag}}
-                        </button>
-                    {% end %}
-                </div>
+                <div class="col-md-12" id="tag-list" />
             </div>
 			<div class="row">
 				<div class="col-md-12 session-thumbnails">
@@ -37,7 +31,6 @@
 							<li class="thumbnail" id="{{session['name']}}/{{ img['name'] }}">
 								<img src="/session_image/{{session['name']}}/{{ img['name'] }}" class="img-responsive">
 								<div class="caption">
-									<p class="small desc" />
 								</div>
 							</li>
 						{% end %}
@@ -161,6 +154,10 @@ var tagToggled = function(tagName) {
     })
 }
 
+var tagToBadge = function(tag) {
+    return '<span class="badge badge-' + all_tags.indexOf(tag) + '">' + tag + '</span>';
+}
+
 var loadTags = function() {
     $.ajax({
         url: "/api/tags/",
@@ -168,9 +165,10 @@ var loadTags = function() {
 	    dataType: "json",
         success: function(result) {
             all_tags = result.all_tags;
+            $('#tag-list').html(all_tags.map(tagToBadge));
             $('li.thumbnail.ui-selectee').each( function(_, el) {
-                var tags = result.targets[el.id] || ['None'];
-                $(el).find('.caption p').text(tags.join(','));
+                var tags = result.targets[el.id] || [];
+                $(el).find('.caption').html(tags.map(tagToBadge));
             })
         }
     });

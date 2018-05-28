@@ -83,3 +83,43 @@ body {
     height: 60px;
     background-color: #f5f5f5;
 }
+
+span.badge.badge-0 {
+    background-color: CRIMSON;
+}
+
+span.badge.badge-1 {
+    background-color: INDIGO;
+}
+
+span.badge.badge-2 {
+    background-color: TURQUOISE;
+}
+
+span.badge.badge-3 {
+    background-color: KHAKI;
+}
+
+span.badge.badge-4 {
+    background-color: LIMEGREEN;
+}
+
+span.badge.badge-5 {
+    background-color: ORANGE;
+}
+
+span.badge.badge-6 {
+    background-color: DEEPPINK;
+}
+
+span.badge.badge-7 {
+    background-color: TAN;
+}
+
+span.badge.badge-8 {
+    background-color: SLATEGRAY;
+}
+
+span.badge.badge-9 {
+    background-color: ANTIQUEWHITE;
+}
