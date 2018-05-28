@@ -45,6 +45,17 @@ div.img-controls {
     margin: 20px 0;
 }
 
+div.zoom-in-frame {
+    width: 566px;
+    height: 566px;
+}
+
+div.zoom-in-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
 .fat-btn {
     height: 242px;
 }

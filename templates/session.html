@@ -87,10 +87,26 @@
 
 	</footer>
 
-	<div class='meta' style="display:none">
-		<span id="session_id" data-id={{ escape(session['name'])}}>session_id:  {{ escape(session['name'])}} </span>
-	</div>
+<!-- Modal -->
+<div class="modal fade" id="zoom-in-modal" tabindex="-1" role="dialog" aria-labelledby="zoom-in-modal-label" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="zoom-in-modal-label">Zoom In</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+		<div class="zoom-in-frame">
+			<img id="zoom-in-img" class="large-img" />
+		</div>
+      </div>
+    </div>
+  </div>
+</div>
 
+</div>
 	<script>
 		$(document).ready(function() {
 			
@@ -108,21 +124,24 @@
 			})
 
             $(document).keydown(function(e) {
-                if (!e.ctrlKey) {
-                    return;
+                if (e.which == 32) {  // space key
+                    showZoomIn();
+	                e.preventDefault(); // prevent the default action (scroll / move caret)
                 }
 
-                if (e.which >= 49 && e.which < 59) {
-                    var i = e.which - 49;
-                    
-                    if (i >= all_tags.length) {
-                        return;
-                    }
-
-                    tagToggled(all_tags[i]);
-
-                    e.preventDefault(); // prevent the default action (scroll / move caret)
-                }
+				if (e.ctrlKey) {
+	                if (e.which >= 49 && e.which < 59) {  // Number key 1 - 9
+	                    var i = e.which - 49;
+	                    
+	                    if (i >= all_tags.length) {
+	                        return;
+	                    }
+	
+	                    tagToggled(all_tags[i]);
+	
+	                    e.preventDefault(); // prevent the default action (scroll / move caret)
+	                }
+				}
             });
             loadTags();
 		} );
@@ -155,6 +174,17 @@ var loadTags = function() {
             })
         }
     });
+}
+
+var showZoomIn = function() {
+    var targets = $('.ui-selected').toArray().map(function(el) {return el.id})
+	if (targets.length != 1) {
+        return;
+    }
+
+    $('#zoom-in-img').attr('src', '/session_image/' + targets[0]);
+    $('#zoom-in-modal-label').text(targets[0]);
+    $('.modal').modal({keyboard: true});
 }
 	</script>
 
