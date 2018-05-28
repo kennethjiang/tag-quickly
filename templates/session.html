@@ -49,17 +49,17 @@
 	<footer class='footer' >
 		<div class="container-fluid">
 			
-			<div class="col-md-5">
+			<div class="col-md-6">
 				<nav aria-label="Page navigation">
 					<ul class="pagination">
 						<li>
 							<a href="./{{pagination['skip_back_page']}}" aria-label="Previous">
-								<span aria-hidden="true">&laquo;&laquo;</span>
+								<span aria-hidden="true">&laquo;</span>
 							</a>
 						</li>
 						<li>
 							<a href="./{{pagination['cur_page'] - 1}}" aria-label="Previous">
-								<span aria-hidden="true">&laquo;</span>
+								<span aria-hidden="true">&lsaquo;</span>
 							</a>
 						</li>
 
@@ -69,12 +69,12 @@
 
 						<li>
 							<a href="./{{pagination['cur_page'] + 1}}" aria-label="Next">
-								<span aria-hidden="true">&raquo;</span>
+								<span aria-hidden="true">&rsaquo;</span>
 							</a>
 						</li>
 						<li>
 							<a href="./{{pagination['skip_ahead_page']}}" aria-label="Previous">
-								<span aria-hidden="true">&raquo;&raquo;</span>
+								<span aria-hidden="true">&raquo;</span>
 							</a>
 						</li>
 					</ul>
@@ -125,7 +125,7 @@
 
             $(document).keydown(function(e) {
                 if (e.which == 32) {  // space key
-                    showZoomIn();
+                    toggleZoomIn();
 	                e.preventDefault(); // prevent the default action (scroll / move caret)
                 }
 
@@ -176,7 +176,12 @@ var loadTags = function() {
     });
 }
 
-var showZoomIn = function() {
+var toggleZoomIn = function() {
+    if ($('#zoom-in-modal').is(':visible')) {
+        $('#zoom-in-modal').modal('hide');
+        return;
+    }
+
     var targets = $('.ui-selected').toArray().map(function(el) {return el.id})
 	if (targets.length != 1) {
         return;
@@ -184,7 +189,7 @@ var showZoomIn = function() {
 
     $('#zoom-in-img').attr('src', '/session_image/' + targets[0]);
     $('#zoom-in-modal-label').text(targets[0]);
-    $('.modal').modal({keyboard: true});
+    $('#zoom-in-modal').modal('show', {keyboard: true});
 }
 	</script>
 
