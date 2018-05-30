@@ -144,14 +144,11 @@ class SessionView(tornado.web.RequestHandler):
         else:
             page = int(page)
 
-        skip_back_page = page - math.ceil(max_page_num/2)
-        skip_back_page = 1 if skip_back_page < 1 else skip_back_page
-        skip_ahead_page = skip_back_page + max_page_num + 1
-        skip_ahead_page = pages if skip_ahead_page > pages else skip_ahead_page
+        page_num_min = page - math.floor(max_page_num/2) if page > math.floor(max_page_num/2) else 1
+        page_num_max = page + math.floor(max_page_num/2) if page + math.floor(max_page_num/2) < pages else pages
+        page_list = list(range(page_num_min, page_num_max+1))  # Python `range` doesn't include the upper bound
 
-        page_list = list(range(skip_back_page+1, skip_ahead_page))
-
-        pagination = {'cur_page': page, 'page_list': page_list, 'skip_back_page': skip_back_page, 'skip_ahead_page': skip_ahead_page}
+        pagination = {'cur_page': page, 'page_list': page_list, 'skip_back_page': page_num_min-1 if page_num_min > 1 else None, 'skip_ahead_page': page_num_max + 1 if page_num_max < pages else None}
 
         end = page * per_page
         start = end - per_page
