@@ -42,10 +42,15 @@
 	<footer class='footer' >
 		<div class="container-fluid">
 			
-			<div class="col-md-6">
+			<div class="col-md-8">
 				<nav aria-label="Page navigation">
 					<ul class="pagination">
                         {% if pagination['skip_back_page'] %}
+    						<li>
+    							<a href="./{{pagination['skip_back_page']}}" aria-label="Previous">
+    								<span aria-hidden="true">1</span>
+    							</a>
+    						</li>
     						<li>
     							<a href="./{{pagination['skip_back_page']}}" aria-label="Previous">
     								<span aria-hidden="true">&laquo;</span>
@@ -77,12 +82,17 @@
 						    		<span aria-hidden="true">&raquo;</span>
 						    	</a>
 						    </li>
+    						<li>
+                                <a href="./{{pagination['total_pages']}}" aria-label="Previous">
+    								<span aria-hidden="true">{{pagination['total_pages']}}</span>
+    							</a>
+    						</li>
                         {% end %}
 					</ul>
 				</nav>
 			</div>
             
-			<div class="col-md-5 img-controls text-right">
+			<div class="col-md-3 img-controls text-right">
 				<input class="btn btn-default" type="button" value="Select All" id="select-all">
 			</div>
 
