@@ -123,3 +123,7 @@ span.badge.badge-8 {
 span.badge.badge-9 {
     background-color: ANTIQUEWHITE;
 }
+
+.bolder {
+    font-weight: bolder
+}

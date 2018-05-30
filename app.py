@@ -138,17 +138,35 @@ class SessionView(tornado.web.RequestHandler):
 
         per_page = 504
         max_page_num = 11
-        pages = math.ceil(img_count/per_page)
+        total_pages = math.ceil(img_count/per_page)
         if page is None:
             page = 1
         else:
             page = int(page)
 
-        page_num_min = page - math.floor(max_page_num/2) if page > math.floor(max_page_num/2) else 1
-        page_num_max = page + math.floor(max_page_num/2) if page + math.floor(max_page_num/2) < pages else pages
+        if page <= math.floor(max_page_num/2):
+            page_num_min = 1
+            page_num_max = page_num_min + max_page_num - 1
+            if max_page_num > total_pages:
+                page_num_max = total_pages
+        elif page + math.floor(max_page_num/2) > total_pages:
+            page_num_max = total_pages
+            page_num_min = page_num_max - max_page_num + 1
+            if page_num_min < 1:
+                page_num_min = 1
+        else:
+            page_num_min = page - math.floor(max_page_num/2)
+            page_num_max = page + math.floor(max_page_num/2)
+
         page_list = list(range(page_num_min, page_num_max+1))  # Python `range` doesn't include the upper bound
 
-        pagination = {'cur_page': page, 'page_list': page_list, 'skip_back_page': page_num_min-1 if page_num_min > 1 else None, 'skip_ahead_page': page_num_max + 1 if page_num_max < pages else None}
+        pagination = {
+                'cur_page': page,
+                'page_list': page_list,
+                'total_pages': total_pages,
+                'skip_back_page': page_num_min-1 if page_num_min > 1 else None,
+                'skip_ahead_page': page_num_max + 1 if page_num_max < total_pages else None
+        }
 
         end = page * per_page
         start = end - per_page

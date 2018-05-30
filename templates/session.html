@@ -52,21 +52,25 @@
     							</a>
     						</li>
                         {% end %}
-						<li>
-							<a href="./{{pagination['cur_page'] - 1}}" aria-label="Previous">
-								<span aria-hidden="true">&lsaquo;</span>
-							</a>
-						</li>
+                        {% if not pagination['cur_page'] == 1 %}
+    						<li>
+    							<a href="./{{pagination['cur_page'] - 1}}" aria-label="Previous">
+    								<span aria-hidden="true">&lsaquo;</span>
+    							</a>
+    						</li>
+                        {% end %}
 
 						{% for p in pagination['page_list'] %}
-							<li ><a href="./{{p}}"> {{p}} </a></li>
+                            <li class="{{ 'bolder' if p == pagination['cur_page'] else ''}}"><a href="./{{p}}"> {{p}} </a></li>
 						{% end %}
 
+                        {% if not pagination['cur_page'] == pagination['total_pages'] %}
 						<li>
 							<a href="./{{pagination['cur_page'] + 1}}" aria-label="Next">
 								<span aria-hidden="true">&rsaquo;</span>
 							</a>
 						</li>
+                        {% end %}
                         {% if pagination['skip_ahead_page'] %}
 						    <li>
 						    	<a href="./{{pagination['skip_ahead_page']}}" aria-label="Previous">
