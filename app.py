@@ -1,9 +1,3 @@
-"""
-remotes.py
-
-The client and web server needed to control a car remotely.
-"""
-
 import time
 from datetime import datetime
 import json
@@ -25,11 +19,6 @@ from PIL import Image
 class TaggingApplication(tornado.web.Application):
 
     def __init__(self, dir_path, tag_file_path):
-        '''
-        Create and publish variables needed on many of
-        the web handlers.
-        '''
-
         if not os.path.exists(os.path.expanduser(dir_path)):
             raise ValueError(dir_path + " does not exist.")
         if not os.path.exists(os.path.expanduser(tag_file_path)):
@@ -41,16 +30,13 @@ class TaggingApplication(tornado.web.Application):
         self.dir_path = dir_path
 
         handlers = [
-
-            #(r"/", tornado.web.RedirectHandler, dict(url="/")),
             (r"/api/tags/", TagGetAPI, dict(file_path=tag_file_path)),
             (r"/api/tags/?(?P<tag>[^/]+)?/", TagAPI, dict(file_path=tag_file_path)),
 
-            (r"/?(?P<page>[^/]+)?", SessionView, dict(dir_path=dir_path, tag_file_path=tag_file_path)),
+            (r"/?(?P<page>[^/]+)?", ThumbnailView, dict(dir_path=dir_path, tag_file_path=tag_file_path)),
 
             (r"/static/(.*)", tornado.web.StaticFileHandler, {"path": self.static_file_path}),
             (r"/imgs/(.*)", tornado.web.StaticFileHandler, {"path": self.dir_path})
-
             ]
 
         settings = {'debug': True}
@@ -58,7 +44,6 @@ class TaggingApplication(tornado.web.Application):
         super().__init__(handlers, **settings)
 
     def start(self, port=8887):
-        ''' Start the tornado webserver. '''
         print("Tag-quick started on port: {0}".format(port))
         self.port = int(port)
         self.listen(self.port)
@@ -82,39 +67,8 @@ class TagAPI(tornado.web.RequestHandler):
         tags.update_tag(tag, targets)
         self.write(json.dumps(tags.tags))
 
-class SessionImageView(tornado.web.RequestHandler):
-    def get(self, session_id, img_name):
-        ''' Returns jpg images from a session folder '''
 
-        dir_path = self.application.dir_path
-        path = os.path.join(dir_path, session_id, img_name)
-        f = Image.open(path)
-        o = io.BytesIO()
-        f.save(o, format="JPEG")
-        s = o.getvalue()
-
-        self.set_header('Content-type', 'image/jpg')
-        self.set_header('Content-length', len(s))
-
-        self.write(s)
-
-
-
-class SessionListView(tornado.web.RequestHandler):
-
-    def get(self):
-        '''
-        Serves a page showing a list of all the session folders.
-        TODO: Move this list creation to the session handler.
-        '''
-
-        session_dirs = [f for f in os.scandir(self.application.dir_path) if f.is_dir() ]
-        data = {'session_dirs': session_dirs, 'tags': Tags(self.application.dir_path)}
-        self.render("templates/session_list.html", **data)
-
-
-
-class SessionView(tornado.web.RequestHandler):
+class ThumbnailView(tornado.web.RequestHandler):
     def initialize(self, dir_path, tag_file_path):
         self.dir_path = dir_path
         self.tag_file_path = tag_file_path
@@ -166,23 +120,6 @@ class SessionView(tornado.web.RequestHandler):
         self.render("templates/session.html", **data)
 
 
-    def post(self, session_id, page):
-        '''
-        Deletes selected images
-        TODO: move this to an api cal. Page is not needed.
-        '''
-
-        data = tornado.escape.json_decode(self.request.body)
-
-        if data['action'] == 'delete_images':
-            dir_path = self.application.dir_path
-            path = os.path.join(dir_path, session_id)
-
-            for i in data['imgs']:
-                os.remove(os.path.join(path, i))
-                #print('%s removed' %i)
-
-
 class Tags():
     def __init__(self, tag_file_path):
         self.file_path = tag_file_path
@@ -191,9 +128,6 @@ class Tags():
 
     def all_tags(self):
         return self.tags.get('all_tags', [])
-
-    def session_tags(self, session_id):
-        return self.tags.get('sessions', {}).get(session_id, [])
 
     def update_tag(self, tag, targets):
         self.tags['targets'] = self.tags.get('targets', {})
