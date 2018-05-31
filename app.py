@@ -22,7 +22,7 @@ class TaggingApplication(tornado.web.Application):
             raise ValueError(tag_file_path + " does not exist.")
 
         cur_dir = os.path.dirname(os.path.realpath(__file__))
-        self.static_file_path = os.path.join(cur_dir, 'templates', 'static')
+        self.static_file_path = os.path.join(cur_dir, 'static')
 
         self.dir_path = dir_path
 
@@ -112,10 +112,9 @@ class ThumbnailView(tornado.web.RequestHandler):
         end = min(end, img_count)
 
         sorted_imgs = sorted(imgs, key=itemgetter('name'))
-        session = {'imgs': sorted_imgs[start:end]}
         tags = Tags(self.tag_file_path)
-        data = {'session': session, 'pagination': pagination, 'tags': tags.all_tags()}
-        self.render("templates/session.html", **data)
+        data = {'imgs': sorted_imgs[start:end], 'pagination': pagination, 'tags': tags.all_tags()}
+        self.render("index.html", **data)
 
 
 class Tags():
