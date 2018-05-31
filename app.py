@@ -13,9 +13,6 @@ import tornado.ioloop
 import tornado.web
 import tornado.gen
 
-from PIL import Image
-
-
 class TaggingApplication(tornado.web.Application):
 
     def __init__(self, dir_path, tag_file_path):
@@ -30,7 +27,7 @@ class TaggingApplication(tornado.web.Application):
         self.dir_path = dir_path
 
         handlers = [
-            (r"/api/tags/", TagGetAPI, dict(file_path=tag_file_path)),
+            (r"/api/tags/", TagListAPI, dict(file_path=tag_file_path)),
             (r"/api/tags/?(?P<tag>[^/]+)?/", TagAPI, dict(file_path=tag_file_path)),
 
             (r"/?(?P<page>[^/]+)?", ThumbnailView, dict(dir_path=dir_path, tag_file_path=tag_file_path)),
@@ -50,12 +47,13 @@ class TaggingApplication(tornado.web.Application):
         tornado.ioloop.IOLoop.instance().start()
 
 
-class TagGetAPI(tornado.web.RequestHandler):
+class TagListAPI(tornado.web.RequestHandler):
     def initialize(self, file_path):
         self.file_path = file_path
 
     def get(self):
         self.write(json.dumps(Tags(self.file_path).tags))
+
 
 class TagAPI(tornado.web.RequestHandler):
     def initialize(self, file_path):
