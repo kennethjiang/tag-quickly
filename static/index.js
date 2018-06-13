@@ -16,8 +16,9 @@ $(document).ready(function() {
 
     $(document).keydown(function(e) {
         if (e.which == 32) {  // space key
-            toggleZoomIn();
-	        e.preventDefault(); // prevent the default action (scroll / move caret)
+            if (toggleZoomIn()) {
+	            e.preventDefault(); // prevent the default action (scroll / move caret)
+            }
         }
 
 		if (e.ctrlKey) {
@@ -34,6 +35,7 @@ $(document).ready(function() {
 	        }
 		}
     });
+
     loadTags();
 } );
 
@@ -77,15 +79,17 @@ var loadTags = function() {
 var toggleZoomIn = function() {
     if ($('#zoom-in-modal').is(':visible')) {
         $('#zoom-in-modal').modal('hide');
-        return;
+        return false;
     }
 
     var targets = $('.ui-selected').toArray().map(function(el) {return el.id})
 	if (targets.length != 1) {
-        return;
+        return false;
     }
 
     $('#zoom-in-img').attr('src', '/imgs/' + targets[0]);
     $('#zoom-in-modal-label').text(targets[0]);
     $('#zoom-in-modal').modal('show', {keyboard: true});
+
+    return true;
 }
