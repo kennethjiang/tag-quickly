@@ -29,7 +29,7 @@ $(document).ready(function() {
 
 	            tagToggled(all_tags[i]);
 	            e.preventDefault(); // prevent the default action (scroll / move caret)
-	        } else if (e.which = 65) { // 'a' key
+	        } else if (e.which == 65) { // 'a' key
                 selectAll();
 	            e.preventDefault(); // prevent the default action (scroll / move caret)
             }
