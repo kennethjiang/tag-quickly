@@ -36,7 +36,7 @@ class TaggingApplication(tornado.web.Application):
             (r"/imgs/(.*)", tornado.web.StaticFileHandler, {"path": self.dir_path})
             ]
 
-        settings = {'debug': True}
+        settings = {'debug': True, 'compress_response': True}
 
         super().__init__(handlers, **settings)
 
