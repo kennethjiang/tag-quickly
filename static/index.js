@@ -10,9 +10,7 @@ $(document).ready(function() {
         }
 	});
 
-	$('#select-all').on('click', function () {
-		$('.thumbnail').addClass('ui-selected');
-	})
+	$('#select-all').on('click', selectAll);
 
     $(document).keydown(function(e) {
         if (e.which == 32) {  // space key
@@ -30,14 +28,21 @@ $(document).ready(function() {
 	            }
 
 	            tagToggled(all_tags[i]);
-
 	            e.preventDefault(); // prevent the default action (scroll / move caret)
-	        }
+	        } else if (e.which = 65) { // 'a' key
+                selectAll();
+	            e.preventDefault(); // prevent the default action (scroll / move caret)
+            }
+
 		}
     });
 
     loadTags();
 } );
+
+var selectAll = function() {
+    $('.thumbnail').addClass('ui-selected');
+}
 
 var all_tags = [];
 
