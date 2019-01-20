@@ -8,7 +8,6 @@ import copy
 import math
 from operator import itemgetter
 
-import requests
 import tornado.ioloop
 import tornado.web
 import tornado.gen
